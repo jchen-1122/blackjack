@@ -6,6 +6,11 @@
     font-weight: 300;
 }
 
+.game_desc {
+    font-size: 25px;
+    text-align: center;
+}
+
 .dealer_hand {
     margin-top: 60px;
     text-align: center;
@@ -19,4 +24,52 @@
     letter-spacing: 1px;
     font-size: 40px;
     text-align: center;
+}
+
+.player_hand {
+    margin-top: 60px;
+    text-align: center;
+}
+  
+.player_hand img {
+    width: 200px;
+}
+
+.player_value {
+    letter-spacing: 1px;
+    font-size: 40px;
+    text-align: center;
+}
+  
+.moves {
+    margin-top: 2.5%;
+    text-align: center;
+}
+
+.btn-stand {
+    background-color: rgb(192, 64, 47); /* Red */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+  }
+
+.btn-hit {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+  }
+
+.divider{
+    width: 500px;
+    height: auto;
+    display: inline-block;
 }
