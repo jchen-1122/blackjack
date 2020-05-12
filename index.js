@@ -210,7 +210,7 @@ elements.hitButton.addEventListener('click', e => {
     if (playerTotal <= 21 && !stand) {
         generateCards().playerNextCard();
     }
-    if (bust) {
+    if (bust || playerTotal === 21) {
         bustOrStand();
     }
 });
@@ -221,6 +221,20 @@ const bustOrStand = () => {
     while (dealerTotal < 17) {
         generateCards().dealerNextCard();
     }
+    let won;
+    if (bust) {
+        won = 'You Lost. Try Again.';
+    } else if (dealerTotal > 21) {
+        won = 'You Won!';
+    } else if (dealerTotal > playerTotal) {
+        won = 'You Lost. Try Again.';
+    } else if (dealerTotal < playerTotal) {
+        won = 'You Won!';
+    } else {
+        won = 'Push!';
+    }
+    const finalMessage = `Dealer had ${dealerTotal}. You had ${playerTotal}. ${won}`
+    elements.dealerValue.textContent = finalMessage;
 }
 
 elements.standButton.addEventListener('click', e => {
