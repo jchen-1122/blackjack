@@ -4,37 +4,69 @@ const elements = {
     playerCards: document.querySelector(".player_hand"),
     playerValue: document.querySelector(".player_value"),
     hitButton: document.querySelector(".btn-hit"),
-    standButton: document.querySelector(".btn-stand")
+    standButton: document.querySelector(".btn-stand"),
+    newButton: document.querySelector(".btn-new"),
 }
 
 let finalDeck = [];
 
 let playerHand = [];
+let playerTotal = 0;
 let dealerHand = [];
+let dealerTotal = 0;
+let faceDown = -1;
+let stand = false;
+let bust = false;
 
-// generate intial setup
+// card controller
 const generateCards = () => {
     const playerGenerateCard = () => {
         const card = getTopCard();
-            
+        const cardVal = cardValue(card);
         const markup = `
             <img src="cards/${card}.png">
             `;
         elements.playerCards.insertAdjacentHTML('beforeend', markup);
-        const cardVal = cardValue(card);
-        elements.playerValue.textContent = parseInt(elements.playerValue.textContent) + cardVal;
         playerHand.push(cardVal);
+        playerTotal = sumOfCards(playerHand);
+        if (playerTotal > 21) {
+            bust = true;
+        }
+        elements.playerValue.textContent = playerTotal;
     };
 
     const dealerGenerateCard = () => {
         const card = getTopCard();
+        const cardVal = cardValue(card);
+        dealerHand.push(cardVal);
+        dealerTotal = sumOfCards(dealerHand);
         const markup = `
             <img src="cards/${card}.png">
         `;
         elements.dealerCards.insertAdjacentHTML('beforeend', markup);
-        const cardVal = cardValue(card);
-        elements.dealerValue.textContent = cardVal;
-        dealerHand.push(cardVal);
+        elements.dealerValue.textContent = dealerTotal;
+    };
+
+    const sumOfCards = cardArr => {
+        if (cardArr.length === 2 && cardArr[0] + cardArr[1] === 21) {
+            return 21;
+        } 
+        let sumWOAce = 0;
+        let numAces = 0;
+        cardArr.forEach(el => {
+            if (el !== 11) {
+                sumWOAce += el;
+            } else {
+                numAces += 1;
+            }
+        });
+        if (sumWOAce <= 10 && numAces >= 1) {
+            return sumWOAce + 11 + (numAces - 1);
+        } else if (sumWOAce > 10 && numAces >= 1) {
+            return sumWOAce + numAces;
+        } else {
+            return sumWOAce;
+        }
     };
 
     return {
@@ -55,11 +87,10 @@ const generateCards = () => {
             const card = getTopCard();
 
             const faceDownMarkup = `
-                 <img src="cards/back.png">
+                 <img src="cards/back.png" id="0">
                 `;
             const cardVal = cardValue(card);
             elements.dealerCards.insertAdjacentHTML('beforeend', faceDownMarkup);
-            dealerHand.push(cardVal);
             return card;
         },
         playerNextCard: () => {
@@ -67,12 +98,19 @@ const generateCards = () => {
         },
         dealerNextCard: () => {
             dealerGenerateCard();
+        },
+        flipCard: () => {
+            const markup = `
+                <img src="cards/${faceDown}.png">
+            `;
+            document.getElementById("0").parentNode.removeChild(document.getElementById("0"));
+            elements.dealerCards.insertAdjacentHTML('afterbegin', markup);
+            const cardVal = cardValue(faceDown);
+            dealerHand.push(cardVal);
+            dealerTotal = sumOfCards(dealerHand);
+            elements.dealerValue.textContent = dealerTotal;
         }
     }
-}
-
-const gameController = () => {
-
 }
 
 // get numerical value of card
@@ -140,21 +178,53 @@ const burnTopCard = () => {
     finalDeck = finalDeck.slice(1);
 }
 
+const clear = () => {
+    playerHand = [];
+    playerTotal = 0;
+    dealerHand = [];
+    dealerTotal = 0;
+    faceDown = -1;
+    stand = false;
+    bust = false;
+    elements.dealerCards.innerHTML = '';
+    elements.playerCards.innerHTML = '';
+}
+
 
 const controller = () => {
     shuffle();
+    clear();
     generateCards().playerFirstCard();
-    generateCards().dealerFaceDown();
+    faceDown = generateCards().dealerFaceDown();
     generateCards().playerNextCard();
     generateCards().dealerNextCard();
+    
 
-    elements.hitButton.addEventListener('click', e => {
-        console.log("hit");
-    });
-
-    elements.standButton.addEventListener('click', e => {
-        console.log("stand");
-    });
 }
 
-controller();
+elements.newButton.addEventListener('click', e => {
+    controller();
+});
+
+elements.hitButton.addEventListener('click', e => {
+    if (playerTotal <= 21 && !stand) {
+        generateCards().playerNextCard();
+    }
+    if (bust) {
+        bustOrStand();
+    }
+});
+
+const bustOrStand = () => {
+    stand = true;
+    generateCards().flipCard();
+    while (dealerTotal < 17) {
+        generateCards().dealerNextCard();
+    }
+}
+
+elements.standButton.addEventListener('click', e => {
+    if (!bust) {
+        bustOrStand();
+    }
+});
